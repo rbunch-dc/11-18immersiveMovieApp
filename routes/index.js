@@ -1,11 +1,19 @@
 var express = require('express');
 var router = express.Router();
+
+const mysql = require('mysql');
+const config = require('../config');
+const connection = mysql.createConnection(config.db);
+connection.connect();
+const bcrypt = require('bcrypt-nodejs');
+
 // Our node module, it's in gitignore
-const apiKey = require('../config');
+
 const apiBaseUrl = 'http://api.themoviedb.org/3';
 const imageBaseUrl = 'http://image.tmdb.org/t/p/w300';
-const nowPlayingUrl = `${apiBaseUrl}/movie/now_playing?api_key=${apiKey}`;
+const nowPlayingUrl = `${apiBaseUrl}/movie/now_playing?api_key=${config.apiKey}`;
 // console.log(nowPlayingUrl)
+
 
 // HOW we would do it in front-end
 // wont work now!
@@ -44,7 +52,7 @@ router.post('/search/movie',(req, res)=>{
   // posted data, is in req.body
   const movieTitle = req.body.movieTitle;
   // res.json(req.body);
-  const searchUrl = `${apiBaseUrl}/search/movie?query=${movieTitle}&api_key=${apiKey}`;
+  const searchUrl = `${apiBaseUrl}/search/movie?query=${movieTitle}&api_key=${config.apiKey}`;
   request.get(searchUrl,(error,response,body)=>{
     const parsedData = JSON.parse(body);
     res.render('now_playing',{
@@ -53,5 +61,25 @@ router.post('/search/movie',(req, res)=>{
     })
   })
 });
+
+router.get('/login',(req, res)=>{
+  res.render('login')
+})
+
+router.post('/loginProcess',(req, res)=>{
+  const insertQuery = `INSERT into users (email,password)
+      VALUES
+    (?,?)`
+    const x = bcrypt.hashSync("req.body.password");    
+  connection.query(insertQuery,[req.body.email,x],(error, results)=>{
+    
+    if(error){
+      throw error;
+    }else{
+      res.json(x)
+    }
+  })
+
+})
 
 module.exports = router;

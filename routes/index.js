@@ -2,12 +2,11 @@ var express = require('express');
 var router = express.Router();
 
 const mysql = require('mysql');
+// Our node module, it's in gitignore
 const config = require('../config');
 const connection = mysql.createConnection(config.db);
 connection.connect();
 const bcrypt = require('bcrypt-nodejs');
-
-// Our node module, it's in gitignore
 
 const apiBaseUrl = 'http://api.themoviedb.org/3';
 const imageBaseUrl = 'http://image.tmdb.org/t/p/w300';
@@ -24,6 +23,8 @@ const request = require('request');
 /* GET home page. */
 router.get('/', function(req, res, next) {
   request.get(nowPlayingUrl,(error,response,body)=>{
+    console.log(nowPlayingUrl)
+    if(error){throw error;}
     // console.log(typeof(body));
     const parsedData = JSON.parse(body);
     // console.log(parsedData);
@@ -42,7 +43,7 @@ router.get('/', function(req, res, next) {
 // if the user comes to it, render search.ejs
 // search.ejs should be an input box with a form tag
 // around it, and a button. That's all
-router.get('/search',(req,res)=>{
+router.get('/search',(req,res,next)=>{
   res.render('search');
 });
 
@@ -51,6 +52,12 @@ router.post('/search/movie',(req, res)=>{
   // querystring data, is in req.query
   // posted data, is in req.body
   const movieTitle = req.body.movieTitle;
+  // in php
+  // $_POST['movieTitle']
+  // in ruby
+  // :params['movieTitle']
+
+
   // res.json(req.body);
   const searchUrl = `${apiBaseUrl}/search/movie?query=${movieTitle}&api_key=${config.apiKey}`;
   request.get(searchUrl,(error,response,body)=>{
@@ -83,3 +90,22 @@ router.post('/loginProcess',(req, res)=>{
 })
 
 module.exports = router;
+
+
+
+const CARCOLOR = Symbol();
+const CARMAKE = Symbol();
+class Car{
+  constructor(color,make){
+    console.log(color)
+    this[CARCOLOR] = color;
+    this[CARMAKE] = make;
+  }
+  get color(){
+    console.log("Getting color");
+    console.log(this)
+    return this[CARCOLOR];
+  }
+}
+let myCar = new Car('Red','Chevy');
+console.log(myCar.color)

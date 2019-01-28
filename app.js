@@ -26,12 +26,15 @@ app.use((req, res, next)=>{
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+// app.use is middleware that adds/removes stuff
+// to the req and/or res
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser()); // adds req.cookies
 app.use(express.static(path.join(__dirname, 'public')));
 
+// use the index.js file in routes 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
